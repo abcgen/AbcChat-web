@@ -336,22 +336,19 @@ describe("loading:", function () {
                 });
         });
 
-        it("shows a home page by default if we have no joined rooms", function () {
+        it("shows a home page by default if we have no joined rooms", async () => {
             localStorage.removeItem("mx_last_room_id");
 
             loadApp();
 
-            return awaitLoggedIn(matrixChat!)
-                .then(() => {
-                    // we are logged in - let the sync complete
-                    return expectAndAwaitSync();
-                })
-                .then(() => {
-                    // once the sync completes, we should have a home page
-                    httpBackend.verifyNoOutstandingExpectation();
-                    expect(matrixChat?.container.querySelector(".mx_HomePage")).toBeTruthy();
-                    expect(windowLocation?.hash).toEqual("#/home");
-                });
+            await awaitLoggedIn(matrixChat!);
+            // we are logged in - let the sync complete
+            await expectAndAwaitSync();
+            // once the sync completes, we should have a home page
+            httpBackend.verifyNoOutstandingExpectation();
+            await waitFor(() => matrixChat?.container.querySelector(".mx_HomePage"));
+            expect(matrixChat?.container.querySelector(".mx_HomePage")).toBeTruthy();
+            expect(windowLocation?.hash).toEqual("#/home");
         });
 
         it("shows a room view if we followed a room link", function () {
